@@ -13,6 +13,24 @@ interface Rating {
   ratingDescription: string;
 }
 
+interface ExerciseArgs {
+  target: number;
+  practiceHours: Array<number>;
+}
+
+const parseExerciseArguments = (args: Array<string>): ExerciseArgs => {
+  if (args.length < 4) throw new Error('Not enough arguments')
+  const argsAsNumbers = args.slice(2).map(argv => Number(argv))
+  argsAsNumbers.forEach(argv => {
+    if (isNaN(argv)) throw new Error('Arguments need to be numbers')
+  })
+
+  return {
+    target: argsAsNumbers[0],
+    practiceHours: argsAsNumbers.slice(1),
+  }
+}
+
 const getRating = (average: number, target: number): Rating => {
   const ratio = average / target;
   if (ratio < 0.5) return { rating: 1, ratingDescription: 'Can only go up from here' }
@@ -37,4 +55,9 @@ const calculateExercises = (practiceHours: Array<number>, target: number): Resul
   }
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2))
+try {
+  const { target, practiceHours } = parseExerciseArguments(process.argv);
+  console.log(calculateExercises(practiceHours, target))
+} catch (e) {
+  console.log(e.message)
+}
